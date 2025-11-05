@@ -12,16 +12,22 @@ program energy_gaps			 !!programma per l'analisi dei gap energetici in ising qua
 	integer :: i, j, itemp
 	integer :: kmax          !!parametro davidson, autovalore massimo che la routine trova
 	real(8) :: gap0, gap1, gap2, cputime
-	logical :: save_time
+	logical :: save_time, lenght_is_fixed
 	real(8), dimension(:), allocatable :: en
 	double complex, dimension(:), allocatable :: ground_state
 	  
+	lenght_is_fixed=.false.              !!se true devo mandare in input il campo, altrimenti la lunghezza    
+	save_time = .false.  	 			 !!printa il tempo di calcolo o no 
+	periodic = .false.		 		     !!condizioni al bordo
+	lambda = 0.d0			 		     !!campo longitudinale (0 per questo progetto)
 	
-							 !!inizializzo i parameteri
-	lambda = 0.d0			 !!campo longitudinale (0 per questo progetto)
-	periodic = .true.		 !!condizioni al bordo
-	lenght = 22              !!lunghezza catena
-	read *, g 		     	 !!campo trasverso (da mandare con script shell)
+	if (lenght_is_fixed) then            !!inizializzo i parameteri a seconda dello scopo
+	    lenght = 10              		 !!lunghezza catena (costante)
+	    read *, g 		     	 		 !!campo trasverso (da mandare con script shell)
+	else
+	    read *, lenght                   !!lunghezza catena (da mandare con script shell)
+	 	g = 0.75d0	     	             !!campo trasverso (costante)
+    end if  
 	
 	dim_hilbert = 2**lenght	 !!inizializzo i registri di spin
 	allocate(spin_states(dim_hilbert, lenght))
@@ -42,15 +48,12 @@ program energy_gaps			 !!programma per l'analisi dei gap energetici in ising qua
 	
 	lambdaAmul = lambda
 	call davidson(dim_hilbert, kmax, en, ground_state)    !!trovo il ground state (funzione d'onda)
-	!!print *, en(1:kmax) 								  !!e i primi kmax livelli energetici
+	if (lenght_is_fixed) then                             !!e i primi kmax livelli energetici
+        print *, g, en(1:kmax) 	      
+	else 
+	    print *, lenght, en(1:kmax)
+	end if
 	
-	!!print *, 'g, 		E_1 - E_0 	  	   E_2 - E_1	 	    E_3 - E_2'
-	gap0 = en(2)-en(1)   	 !!gap_i = E_i+1 - E_i
-	gap1 = en(3)-en(2)
-	gap2 = en(4)-en(3)
-	print *, g, gap0, gap1, gap2
-	
-	save_time = .false.  	 !!printa il tempo di calcolo o no
 	if (save_time) then
 	    call cpu_time(cputime)
         print *,'Total CPU time:	', cputime
