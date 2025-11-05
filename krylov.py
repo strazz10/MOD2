@@ -6,23 +6,22 @@ dim_krylov = 80
 
 def lanczos(A, v, m):
     """
-    Lanczos iteration for symmetric/Hermitian matrices.
+    Algoritmo Lanczos (matrici simmetriche)
 
-    Parameters
+    Parametri
     ----------
-    A : (n, n) ndarray
-        Real symmetric or complex Hermitian matrix
-    v : (n,) ndarray
-        Starting vector (will be normalized)
-    m : int
-        Number of Lanczos vectors
-
-    Returns
+    A : (n, n) matrice reale simmetrica
+        
+    v : (n,) vettore di partenza
+        
+    m : intero, dimensione dello spazio di Krylov
+        
+    Ritorna
     -------
-    V : (n, m) ndarray
-        Orthonormal Lanczos basis
-    T : (m, m) ndarray
-        Symmetric tridiagonal matrix
+    V : (n, m) base ortonormale
+        
+    T : (m, m) matrice tridiagonale che approssima la matrice di partenza
+        
     """
     n = A.shape[0]
     V = np.zeros((n, m), dtype=A.dtype)
@@ -51,12 +50,11 @@ def lanczos(A, v, m):
     return V, T
 
 
-#inizializzo la matrice e il vettore iniziale
+#inizializzo la matrice (simmetrica per velocità e affidabilità) e il vettore iniziale (la funzione lo normalizza)
 start_mat = np.random.randint(-3,3, (dim_hilbert, dim_hilbert))
-start_mat = (start_mat + start_mat.T)  #simmetrica per velocità e affidabilità
+start_mat = (start_mat + start_mat.T)  
 start_mat = start_mat.astype(float)
 start_vec = np.random.randint(-3,3, size=dim_hilbert)
-start_vec = start_vec/np.linalg.norm(start_vec)
 
 #print("Starting matrix:\n", start_mat)
 #print("Starting vector:\n", start_vec)
